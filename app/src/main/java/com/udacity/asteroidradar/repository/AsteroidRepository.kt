@@ -19,10 +19,10 @@ class AsteroidRepository(private val database: AsteroidsDatabase) {
     /**
      * A list of asteroids that can be shown on the screen.
     //     */
-//    val asteroids: LiveData<List<Asteroid>> =
-//            Transformations.map(database.asteroidDao.getAsteroids()) {
-//                it.asDomainModel()
-//            }
+    val asteroids: LiveData<List<Asteroid>> =
+            Transformations.map(database.asteroidDao.getAsteroids()) {
+                it.asDomainModel()
+            }
 
     /**
      * Refresh the asteroids stored in the offline cache.
@@ -43,7 +43,6 @@ class AsteroidRepository(private val database: AsteroidsDatabase) {
 
                 val asteroids = parseAsteroidsJsonResult(JSONObject(jsonResult))
                 database.asteroidDao.insertAll(*asteroids.asDatabaseModel())
-                Log.d("REPOSITORY", "PAUSE")
             } catch (e: Exception) {
                 Log.d("REPOSITORY", "Unable to RefreshAsteroids: " + e.message)
             }
