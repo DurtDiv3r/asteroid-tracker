@@ -37,10 +37,7 @@ class AsteroidRepository(private val database: AsteroidsDatabase) {
     suspend fun refreshAsteroids() {
         withContext(Dispatchers.IO) {
             try {
-
-                // Testing
                 val jsonResult = Network.service.getAsteroidList(Constants.API_KEY)
-
                 val asteroids = parseAsteroidsJsonResult(JSONObject(jsonResult))
                 database.asteroidDao.insertAll(*asteroids.asDatabaseModel())
             } catch (e: Exception) {
