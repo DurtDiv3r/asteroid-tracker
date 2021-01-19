@@ -13,14 +13,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val database = getDatabase(application)
     private val asteroidRepository = AsteroidRepository(database)
 
-    val asteroids = Transformations.map(database.asteroidDao.getAsteroids()) {
-        it.asDomainModel()
+    private var _menuOption = MutableLiveData<MainFragment.MenuOption>()
+    val menuOption: LiveData<MainFragment.MenuOption>
+        get() = _menuOption
+
+    val asteroids = Transformations.switchMap(menuOption) {
+        when (it!!) {
+            MainFragment.MenuOption.WEEK -> asteroidRepository.getAsteroids(MainFragment.MenuOption.WEEK)
+            MainFragment.MenuOption.SAVED -> asteroidRepository.getAsteroids(MainFragment.MenuOption.SAVED)
+            MainFragment.MenuOption.TODAY -> asteroidRepository.getAsteroids(MainFragment.MenuOption.TODAY)
+            else -> asteroidRepository.getAsteroids(MainFragment.MenuOption.WEEK)
+        }
     }
+
+    val pictureOfDay = asteroidRepository.pictureOfTheDay
 
     init {
             viewModelScope.launch {
+                _menuOption.value = MainFragment.MenuOption.WEEK
                 asteroidRepository.refreshAsteroids()
-
+                asteroidRepository.getPictureOfTheDay()
             }
     }
 
@@ -28,11 +40,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
-
     /**
      * Factory for constructing DevByteViewModel with parameter
      */
-    class ViewmodelFactory(val app: Application) : ViewModelProvider.Factory {
+    class ViewModelFactory(val app: Application) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
@@ -40,6 +51,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             }
             throw IllegalArgumentException("Unable to construct viewmodel")
         }
+    }
 
+    fun updateList(option: MainFragment.MenuOption) {
+        _menuOption.value = option
     }
 }

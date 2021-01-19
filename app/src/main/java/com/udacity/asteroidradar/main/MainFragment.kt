@@ -10,13 +10,15 @@ import com.udacity.asteroidradar.databinding.FragmentMainBinding
 
 class MainFragment : Fragment() {
 
+    enum class MenuOption { DEFAULT, TODAY, WEEK, SAVED }
+
     private val viewModel: MainViewModel by lazy {
         val activity = requireNotNull(this.activity) {
         }
 
         ViewModelProvider(
                 this,
-                MainViewModel.ViewmodelFactory(activity.application)
+                MainViewModel.ViewModelFactory(activity.application)
         ).get(MainViewModel::class.java)
     }
 
@@ -49,6 +51,11 @@ class MainFragment : Fragment() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.show_buy_menu -> viewModel.updateList(MenuOption.SAVED)
+            R.id.show_rent_menu -> viewModel.updateList(MenuOption.TODAY)
+            R.id.show_all_menu -> viewModel.updateList(MenuOption.WEEK)
+        }
         return true
     }
 }
