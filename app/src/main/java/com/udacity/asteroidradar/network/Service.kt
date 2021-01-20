@@ -17,7 +17,6 @@ private val moshi = Moshi.Builder()
 
 interface AsteroidService {
 
-    //todo add all params
     @GET("neo/rest/v1/feed")
     suspend fun getAsteroidList(
             @Query("start_date") startDate: String,
@@ -26,7 +25,6 @@ interface AsteroidService {
 }
 
 interface PictureService {
-    //todo check if call is correct
     @GET("planetary/apod")
     suspend fun getNewDailyPicture(
             @Query("api_key") apiKey: String): NetworkPictureOfTheDay
