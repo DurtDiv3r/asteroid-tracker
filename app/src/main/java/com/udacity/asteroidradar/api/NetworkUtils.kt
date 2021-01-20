@@ -44,7 +44,7 @@ fun parseAsteroidsJsonResult(jsonResult: JSONObject): ArrayList<NetworkAsteroid>
 }
 
 
-private fun getNextSevenDaysFormattedDates(): ArrayList<String> {
+public fun getNextSevenDaysFormattedDates(): ArrayList<String> {
     val formattedDateList = ArrayList<String>()
 
     val calendar = Calendar.getInstance()

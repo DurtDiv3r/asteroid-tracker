@@ -6,6 +6,7 @@ import androidx.lifecycle.Transformations
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.BuildConfig
 import com.udacity.asteroidradar.Constants
+import com.udacity.asteroidradar.api.getNextSevenDaysFormattedDates
 import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.AsteroidsDatabase
 import com.udacity.asteroidradar.database.asDomainModel
@@ -36,10 +37,6 @@ class AsteroidRepository(private val database: AsteroidsDatabase) {
     /**
      * A list of asteroids that can be shown on the screen.
     //     */
-//    val asteroids: LiveData<List<Asteroid>> =
-//            Transformations.map(database.asteroidDao.getAsteroids()) {
-//                it.asDomainModel()
-//            }
 
     fun getAsteroids(menuOption: MainFragment.MenuOption): LiveData<List<Asteroid>> {
         return when (menuOption) {
@@ -57,9 +54,6 @@ class AsteroidRepository(private val database: AsteroidsDatabase) {
                 it.asDomainModel()
 
             }
-
-//            else -> Transformations.map(database.asteroidDao.getAsteroids()) {
-//                it.asDomainModel()
             else -> Transformations.map(database.asteroidDao.getWeekAsteroid()) {
                 it.asDomainModel()
 
@@ -82,7 +76,8 @@ class AsteroidRepository(private val database: AsteroidsDatabase) {
     suspend fun refreshAsteroids() {
         withContext(Dispatchers.IO) {
             try {
-                val jsonResult = Network.asteroidService.getAsteroidList(Constants.API_KEY)
+                val nextSevenDays = getNextSevenDaysFormattedDates()
+                val jsonResult = Network.asteroidService.getAsteroidList(nextSevenDays[0], nextSevenDays[7], Constants.API_KEY)
                 val asteroids = parseAsteroidsJsonResult(JSONObject(jsonResult))
                 database.asteroidDao.insertAll(*asteroids.asDatabaseModel())
             } catch (e: Exception) {

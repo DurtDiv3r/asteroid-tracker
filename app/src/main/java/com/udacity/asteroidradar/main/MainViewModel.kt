@@ -1,9 +1,9 @@
 package com.udacity.asteroidradar.main
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.*
 import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.database.asDomainModel
 import com.udacity.asteroidradar.database.getDatabase
 import com.udacity.asteroidradar.repository.AsteroidRepository
 import kotlinx.coroutines.launch
@@ -14,8 +14,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val asteroidRepository = AsteroidRepository(database)
 
     private var _menuOption = MutableLiveData<MainFragment.MenuOption>()
-    val menuOption: LiveData<MainFragment.MenuOption>
+    private val menuOption: LiveData<MainFragment.MenuOption>
         get() = _menuOption
+
+    private val _navigateToDetails = MutableLiveData<Asteroid>()
+    val navigateToDetails
+        get() = _navigateToDetails
 
     val asteroids = Transformations.switchMap(menuOption) {
         when (it!!) {
@@ -29,15 +33,24 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val pictureOfDay = asteroidRepository.pictureOfTheDay
 
     init {
-            viewModelScope.launch {
-                _menuOption.value = MainFragment.MenuOption.WEEK
-                asteroidRepository.refreshAsteroids()
-                asteroidRepository.getPictureOfTheDay()
-            }
+        _menuOption.value = MainFragment.MenuOption.WEEK
+        refreshData()
+    }
+
+    private fun refreshData() {
+        viewModelScope.launch {
+            asteroidRepository.refreshAsteroids()
+            asteroidRepository.getPictureOfTheDay()
+        }
     }
 
     fun onItemClicked(asteroid: Asteroid) {
+        Log.d("TEST", "ITEM CLICKED")
+        _navigateToDetails.value = asteroid
+    }
 
+    fun onItemClickedComplete() {
+        _navigateToDetails.value = null
     }
 
     /**
